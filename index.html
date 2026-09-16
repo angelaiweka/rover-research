@@ -354,6 +354,46 @@
 
   .ref-list li:last-child { border-bottom: none; }
 
+  .log-entry {
+    display: grid;
+    grid-template-columns: 90px 1fr;
+    gap: 1.25rem;
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .log-date {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--muted);
+    padding-top: 2px;
+  }
+
+  .log-text {
+    font-size: 13px;
+    color: var(--text);
+    line-height: 1.6;
+  }
+
+  .log-entry:last-child { border-bottom: none; }
+
+  .progress-log {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 1.25rem 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .progress-log-heading {
+    font-family: var(--mono);
+    font-size: 11px;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: var(--accent-mid);
+    margin-bottom: 0.75rem;
+  }
+
   .about-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -452,6 +492,13 @@
       </a>
     </div>
     <p class="hero-abstract">Can a reinforcement learning agent learn a navigation policy that generalizes to terrain it has never seen? This project investigates onboard autonomous decision-making for planetary rovers operating under deep-space communication constraints.</p>
+  </div>
+
+  <div class="progress-log">
+    <div class="progress-log-heading">Progress Log</div>
+    <div id="log-entries">
+      <p style="font-size:13px; color:var(--muted); margin:0;">Loading entries...</p>
+    </div>
   </div>
 
   <section id="overview" class="section visible">
@@ -611,6 +658,49 @@
     document.getElementById(id).classList.add('visible');
     el.classList.add('active');
   }
+</script>
+
+<script>
+  const SHEET_CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vREx2yk4Fjg5TZ0IBZ32LYJAgJyEt1kv_M56DHbGz91JXrnSNvGNIb4y2KzO_zk6RMjuzBr94BtTa2k/pub?gid=0&single=true&output=csv';
+  const MAX_FRONT_PAGE_ENTRIES = 5;
+
+  function parseCSVLine(line) {
+    const result = [];
+    let cur = '';
+    let inQuotes = false;
+    for (let i = 0; i < line.length; i++) {
+      const char = line[i];
+      if (char === '"') {
+        inQuotes = !inQuotes;
+      } else if (char === ',' && !inQuotes) {
+        result.push(cur);
+        cur = '';
+      } else {
+        cur += char;
+      }
+    }
+    result.push(cur);
+    return result.map(s => s.trim());
+  }
+
+  fetch(SHEET_CSV_URL)
+    .then(res => res.text())
+    .then(csvText => {
+      const lines = csvText.trim().split('\n');
+      const rows = lines.slice(1).map(parseCSVLine).filter(r => r[0]);
+      rows.sort((a, b) => new Date(b[0]) - new Date(a[0]));
+      const recent = rows.slice(0, MAX_FRONT_PAGE_ENTRIES);
+      const container = document.getElementById('log-entries');
+      container.innerHTML = recent.map(r => `
+        <div class="log-entry">
+          <div class="log-date">${r[0]}</div>
+          <div class="log-text">${r[1]}</div>
+        </div>
+      `).join('');
+    })
+    .catch(() => {
+      document.getElementById('log-entries').innerHTML = '<p style="font-size:13px; color:var(--muted); margin:0;">Could not load log entries.</p>';
+    });
 </script>
 </body>
 </html>
