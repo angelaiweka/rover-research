@@ -36,7 +36,6 @@
   a { color: var(--accent); text-decoration: none; }
   a:hover { text-decoration: underline; }
 
-  /* Layout */
   .site-header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
@@ -90,7 +89,6 @@
     padding: 3rem 2rem 6rem;
   }
 
-  /* Hero */
   .hero {
     margin-bottom: 3.5rem;
   }
@@ -201,7 +199,6 @@
     padding-left: 1.25rem;
   }
 
-  /* Sections */
   .section {
     display: none;
   }
@@ -233,7 +230,6 @@
   h3 { font-size: 15px; font-weight: 600; margin-bottom: 0.5rem; }
   p { color: var(--muted); margin-bottom: 1rem; }
 
-  /* Cards */
   .card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -258,7 +254,6 @@
     margin-bottom: 0.5rem;
   }
 
-  /* Tool pills */
   .pill-group {
     display: flex;
     flex-wrap: wrap;
@@ -276,7 +271,6 @@
     border: 1px solid #c5d9ec;
   }
 
-  /* Timeline */
   .timeline {
     position: relative;
     margin-bottom: 2rem;
@@ -317,7 +311,6 @@
     box-shadow: 0 0 0 1px var(--accent);
   }
 
-  /* Placeholder */
   .placeholder {
     background: var(--surface);
     border: 1px dashed var(--border);
@@ -335,7 +328,6 @@
     opacity: 0.4;
   }
 
-  /* References */
   .ref-list {
     list-style: none;
     counter-reset: refs;
@@ -352,23 +344,16 @@
   }
 
   .ref-list li::before {
-    font-family: var(--mono);
-    font-size: 11px;
-    color: var(--accent-mid);
-    margin-right: 0.75rem;
-  }
-
-  .ref-list li:last-child { border-bottom: none; }
-
-  .ref-list li::before {
     content: counter(refs);
     font-family: var(--mono);
     font-size: 11px;
     color: var(--accent-mid);
+    margin-right: 0.75rem;
     padding-top: 2px;
   }
 
-  /* About */
+  .ref-list li:last-child { border-bottom: none; }
+
   .about-card {
     background: var(--surface);
     border: 1px solid var(--border);
@@ -446,6 +431,7 @@
       <a href="#" class="active" onclick="show('overview', this); return false;">Overview</a>
       <a href="#" onclick="show('methods', this); return false;">Methods</a>
       <a href="#" onclick="show('results', this); return false;">Results</a>
+      <a href="#" onclick="show('challenges', this); return false;">Challenges</a>
       <a href="#" onclick="show('about', this); return false;">About</a>
       <a href="#" onclick="show('references', this); return false;">References</a>
     </nav>
@@ -468,7 +454,6 @@
     <p class="hero-abstract">Can a reinforcement learning agent learn a navigation policy that generalizes to terrain it has never seen? This project investigates onboard autonomous decision-making for planetary rovers operating under deep-space communication constraints.</p>
   </div>
 
-  <!-- Overview -->
   <section id="overview" class="section visible">
     <div class="section-heading">Overview</div>
     <div class="card-grid">
@@ -488,7 +473,6 @@
     </div>
   </section>
 
-  <!-- Methods -->
   <section id="methods" class="section">
     <div class="section-heading">Methods</div>
     <div class="card" style="margin-bottom:1.25rem;">
@@ -543,16 +527,19 @@
     </div>
   </section>
 
-  <!-- Results -->
   <section id="results" class="section">
     <div class="section-heading">Results</div>
     <div class="placeholder">
       <div class="placeholder-icon">📊</div>
-      <p style="margin:0; font-size:14px;">Results will be posted here once experiments are complete (est. August 2026).<br>Check back for training curves, success rate comparisons, and agent behavior visualizations.</p>
+      <p style="margin:0; font-size:14px;">Results will be posted here once experiments are complete (est. October 2026).<br>Check back for training curves, success rate comparisons, and agent behavior visualizations.</p>
     </div>
   </section>
 
-  <!-- About -->
+  <section id="challenges" class="section">
+    <div class="section-heading">Challenges &amp; Debugging</div>
+    <p style="color:var(--muted); font-size:14px; margin-bottom:1.5rem; max-width:640px;">Real failure modes encountered during development, documented as they were diagnosed and resolved.</p>
+  </section>
+
   <section id="about" class="section">
     <div class="section-heading">About</div>
     <div class="about-card">
@@ -582,7 +569,6 @@
     </div>
   </section>
 
-  <!-- References -->
   <section id="references" class="section">
     <div class="section-heading">References</div>
     <ol class="ref-list">
