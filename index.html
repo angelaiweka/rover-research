@@ -431,7 +431,7 @@
       <a href="#" class="active" onclick="show('overview', this); return false;">Overview</a>
       <a href="#" onclick="show('methods', this); return false;">Methods</a>
       <a href="#" onclick="show('results', this); return false;">Results</a>
-      <a href="#" onclick="show('challenges', this); return false;">Challenges</a>
+      <a href="#" onclick="show('challenges', this); return false;">Debugging</a>
       <a href="#" onclick="show('about', this); return false;">About</a>
       <a href="#" onclick="show('references', this); return false;">References</a>
     </nav>
@@ -536,8 +536,30 @@
   </section>
 
   <section id="challenges" class="section">
-    <div class="section-heading">Challenges &amp; Debugging</div>
-    <p style="color:var(--muted); font-size:14px; margin-bottom:1.5rem; max-width:640px;">Real failure modes encountered during development, documented as they were diagnosed and resolved.</p>
+    <div class="section-heading">Debugging</div>
+    <p style="color:var(--muted); font-size:14px; margin-bottom:1.5rem; max-width:640px;">Real failure modes encountered during development, documented as they were diagnosed and resolved. These map onto general challenges in autonomous robotics: coordinate frame errors, sensor dropout, and local minima in reactive control.</p>
+
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-label">Coordinate frame mismatch &nbsp;·&nbsp; Aug 17 &nbsp;·&nbsp; Resolved</div>
+      <h3>Odom-frame vs. world-frame goal miscalculation</h3>
+      <p style="margin-bottom:0.5rem;">The controller's goal coordinate (<code>GOAL_X = 4.5</code>) was defined in world-frame terms, but <code>/odom</code> reports position relative to the rover's spawn point, not the world origin. Since the rover spawned at world x = -4.5, the odom-frame origin was offset by 4.5m, meaning the real goal was actually 9.0m away in odom coordinates, not 4.5m. The rover was stopping halfway to the true goal every run.</p>
+      <p style="margin:0;"><strong>Fix:</strong> Recomputed the goal in odom-frame terms (<code>GOAL_X = 9.0</code>). Verified via direct <code>/odom</code> echo that the rover reached x = 8.80, within the 0.2m stop threshold of the corrected goal.</p>
+    </div>
+
+    <div class="card" style="margin-bottom:1.25rem;">
+      <div class="card-label">Sensor dropout &nbsp;·&nbsp; Aug 18 &nbsp;·&nbsp; Resolved</div>
+      <h3>Missing sensor plugin silently killed LiDAR data</h3>
+      <p style="margin-bottom:0.5rem;">Obstacle avoidance never engaged, even though the LiDAR sensor was correctly defined in the robot model. The custom-generated terrain world file was missing the <code>gz-sim-sensors-system</code> world plugin (along with physics, user-commands, and scene-broadcaster plugins), so <code>/scan</code> had no publisher at all. The controller's repulsive-force logic had no data to act on.</p>
+      <p style="margin:0;"><strong>Fix:</strong> Added the missing system plugin block directly to the world SDF. Confirmed <code>/scan</code> publishing at ~4.2Hz afterward, and the rover successfully avoided its first obstacle in the next test run.</p>
+    </div>
+
+    <div class="card">
+      <div class="card-label">Local minima &nbsp;·&nbsp; Aug 18 &nbsp;·&nbsp; Ongoing</div>
+      <h3>Local-minimum stall near small obstacles</h3>
+      <p style="margin-bottom:0.5rem;">After the sensor fix, the rover still freezes completely (zero <code>cmd_vel</code>) well short of the goal near smaller obstacles. Diagnosed as a local minimum: the attractive (goal) and repulsive (obstacle) forces cancel to a net-zero vector, not a bug in the avoidance logic itself.</p>
+      <p style="margin-bottom:0.5rem;"><strong>Attempt 1:</strong> Added stall detection (position-history check) with a random-direction spin-in-place recovery. This made things worse: the rover wandered erratically, since each stall picked a new random direction with no goal awareness.</p>
+      <p style="margin:0;"><strong>Attempt 2:</strong> Reverted the stall detection and increased the tangential repulsive force gain (0.5 → 1.2) to reduce local-minimum frequency. Did not resolve it; the rover still halts near a different small obstacle. Next step under consideration: a goal-aware recovery behavior that biases the escape direction using the last known goal bearing, rather than a random one.</p>
+    </div>
   </section>
 
   <section id="about" class="section">
